@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>India's Got Latent - Sougata & Friends</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #101014;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+header {
+  background: #25191a;
+  text-align: center;
+  padding: 45px 15px;
+}
+h1 { color: #ffbc46; font-size: 38px; }
+h2 { color: #ffbc46; }
+.prize {
+  font-size: 25px;
+  color: #ffbc46;
+  font-weight: bold;
+}
+section {
+  max-width: 800px;
+  margin: auto;
+  padding: 25px 18px;
+}
+.panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px,1fr));
+  gap: 10px;
+}
+.judge, .card {
+  background: #24242c;
+  border-radius: 12px;
+  padding: 18px;
+  margin: 10px 0;
+}
+.judge { text-align: center; }
+input, select, textarea {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  margin: 10px 0 18px;
+  background: #282831;
+  border: 1px solid #555;
+  border-radius: 8px;
+  color: white;
+  font: inherit;
+}
+textarea { min-height: 100px; }
+button {
+  background: #ffbc46;
+  color: #191919;
+  padding: 13px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+label { display: block; margin: 12px 0; }
+label input[type=checkbox] {
+  display: inline;
+  width: auto;
+  margin: 0 8px 0 0;
+}
+small { color: #bdbdc5; }
+#dashboard { display: none; }
+footer {
+  text-align: center;
+  padding: 25px;
+  background: #25191a;
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>INDIA'S GOT LATENT</h1>
+<h2>Sougata & Friends Edition</h2>
+<p class="prize">🏆 GRAND PRIZE ₹200</p>
+<p>Show Your Talent. Enjoy The Comedy.</p>
+<small>Unofficial friends' event</small>
+</header>
+
+<section>
+<h2>🎤 Meet Our Panel</h2>
+<div class="panel">
+  <div class="judge">🔥<h3>Surya</h3>Main Roaster<br>Seat 1</div>
+  <div class="judge">👨‍🏫<h3>Arijit Sir</h3>Invited Guest<br>Seat 2</div>
+  <div class="judge">🎤<h3>Sougata</h3>Host + Judge<br>Seat 3</div>
+  <div class="judge">📱<h3>Satyam</h3>Meme Creator<br>Seat 4</div>
+  <div class="judge">😂<h3>Soumya</h3>Roaster<br>Seat 5</div>
+</div>
+<small>Arijit Sir's participation is subject to his agreement.</small>
+</section>
+
+<section>
+<h2>📝 Contestant Registration</h2>
+<form id="registration">
+<label for="name">Name or Stage Name</label>
+<input id="name" required maxlength="60">
+
+<label for="talent">Performance Category</label>
+<select id="talent" required>
+<option value="">Select</option>
+<option>Comedy</option>
+<option>Singing</option>
+<option>Dance</option>
+<option>Magic</option>
+<option>Other</option>
+</select>
+
+<label for="type">Participation Type</label>
+<select id="type">
+<option>Solo</option>
+<option>Duo</option>
+<option>Group</option>
+</select>
+
+<label for="description">Describe Your Performance</label>
+<textarea id="description" required maxlength="400"></textarea>
+
+<label for="facts">Fun Facts For The Panel (Optional)</label>
+<textarea id="facts" maxlength="300"
+placeholder="Share something funny about yourself. Avoid private information."></textarea>
+
+<label>
+<input type="checkbox" id="rules" required>
+I agree to the event rules and voluntary participation.
+</label>
+
+<label>
+<input type="checkbox" id="record">
+I consent to being photographed or recorded.
+</label>
+
+<label>
+<input type="checkbox" id="publish">
+I separately consent to my recording being shared online.
+</label>
+
+<p><small>Under-18 participants should obtain parent or guardian permission where required, especially for recording or sharing videos.</small></p>
+
+<button type="submit">Submit Demo Registration</button>
+</form>
+<p id="message" role="status"></p>
+</section>
+
+<section>
+<h2>🔐 Admin Section</h2>
+<p>Panelist dashboard demonstration</p>
+<label for="password">Enter Password</label>
+<input type="password" id="password" placeholder="Not configured in demo">
+<button onclick="showDashboard()">Preview Dashboard</button>
+<p><small>Demo only. This button does not authenticate anyone.</small></p>
+
+<div id="dashboard">
+<h2>🎬 Panelist Dashboard</h2>
+<p>Welcome, Panelists!</p>
+<p><small>Shows only applications entered in this browser session.</small></p>
+<h3>Registered Contestants</h3>
+<div id="contestants"></div>
+<button onclick="closeDashboard()">Close Dashboard</button>
+</div>
+</section>
+
+<footer>
+India's Got Latent - Sougata & Friends Edition
+<br>₹200 Winner's Prize
+</footer>
+
+<script>
+const applications = [];
+
+document.getElementById("registration")
+.addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  const contestant = {
+    name: document.getElementById("name").value.trim(),
+    talent: document.getElementById("talent").value,
+    type: document.getElementById("type").value,
+    description: document.getElementById("description").value.trim(),
+    facts: document.getElementById("facts").value.trim(),
+    record: document.getElementById("record").checked,
+    publish: document.getElementById("publish").checked
+  };
+
+  if (!contestant.name || !contestant.description) return;
+
+  applications.push(contestant);
+  document.getElementById("message").textContent =
+    "Demo application added! It has not been sent online.";
+
+  this.reset();
+  renderContestants();
+});
+
+function showDashboard() {
+  document.getElementById("dashboard").style.display = "block";
+  renderContestants();
+}
+
+function closeDashboard() {
+  document.getElementById("dashboard").style.display = "none";
+}
+
+function renderContestants() {
+  const container = document.getElementById("contestants");
+  container.replaceChildren();
+
+  if (!applications.length) {
+    container.textContent = "No demo contestants registered.";
+    return;
+  }
+
+  applications.forEach((person, index) => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const title = document.createElement("h3");
+    title.textContent = (index + 1) + ". " + person.name;
+    card.appendChild(title);
+
+    const details = [
+      ["Talent", person.talent],
+      ["Type", person.type],
+      ["Performance", person.description],
+      ["Fun Facts", person.facts || "None"],
+      ["Recording Consent", person.record ? "Yes" : "No"],
+      ["Publishing Consent", person.publish ? "Yes" : "No"]
+    ];
+
+    details.forEach(([label, value]) => {
+      const p = document.createElement("p");
+      const strong = document.createElement("strong");
+      strong.textContent = label + ": ";
+      p.append(strong, document.createTextNode(value));
+      card.appendChild(p);
+    });
+
+    container.appendChild(card);
+  });
+}
+</script>
+</body>
+</html>
